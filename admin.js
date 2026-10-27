@@ -1,12 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // ==========================================
-// ⚠️ REPLACE WITH YOUR FIREBASE CONFIG
+// 1. CONFIGURATION
 // ==========================================
- // Your web app's Firebase configuration
+
+// Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
     authDomain: "tharsos-af07d.firebaseapp.com",
@@ -16,43 +16,64 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
     appId: "1:229266745261:web:57b90fc331b098f1bda324"
   };
 
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// ⚠️ REPLACE WITH YOUR IMAGEKIT CONFIG
+const imagekitConfig = {
+  publicKey: "public_nc8JLio9ktfuErRfQQcRFJN95nE=",
+  urlEndpoint: "https://ik.imagekit.io/tharsos",
+};
 
 // ==========================================
-// DOM ELEMENTS
+// 2. INITIALIZATION
 // ==========================================
+let app, auth, db, imagekit;
+
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  imagekit = new ImageKit(imagekitConfig);
+} catch (error) {
+  console.error("Initialization error:", error);
+  alert("Failed to initialize Firebase. Did you paste your config keys in app.js?");
+}
+
+// DOM Elements
 const loginView = document.getElementById('login-view');
 const adminView = document.getElementById('admin-view');
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
+const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const productForm = document.getElementById('product-form');
 const submitBtn = document.getElementById('submit-btn');
 const statusMsg = document.getElementById('status-msg');
 
 // ==========================================
-// AUTHENTICATION
+// 3. AUTHENTICATION LOGIC
 // ==========================================
 loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
+  e.preventDefault(); // This stops the page reload!
+  
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   
-  submitBtn.innerText = 'Logging in...';
+  loginBtn.innerText = 'Logging in...';
+  loginBtn.disabled = true;
+  loginError.innerText = '';
   
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
-      loginError.innerText = '';
       loginForm.reset();
+      loginBtn.innerText = 'Login';
+      loginBtn.disabled = false;
     })
     .catch((error) => {
-      loginError.innerText = error.message;
-      submitBtn.innerText = 'Login';
+      console.error(error);
+      // Clean up error message
+      let msg = error.message.replace("Firebase: ", "");
+      loginError.innerText = msg;
+      loginBtn.innerText = 'Login';
+      loginBtn.disabled = false;
     });
 });
 
@@ -67,31 +88,36 @@ onAuthStateChanged(auth, (user) => {
   } else {
     adminView.classList.remove('active');
     loginView.classList.add('active');
-    submitBtn.innerText = 'Login';
+    loginBtn.innerText = 'Login';
+    loginBtn.disabled = false;
   }
 });
 
 // ==========================================
-// PRODUCT SUBMISSION
+// 4. PRODUCT SUBMISSION (ImageKit + Firestore)
 // ==========================================
 productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitBtn.disabled = true;
-  submitBtn.innerText = 'Uploading...';
+  submitBtn.innerText = 'Publishing...';
   statusMsg.innerText = '';
+  statusMsg.style.color = 'var(--muted)';
 
   try {
-    // 1. Upload Image to Firebase Storage
+    // A. Upload Image to ImageKit
     const imageFile = document.getElementById('prod-image').files[0];
     let imageUrl = '';
     
     if (imageFile) {
-      const storageRef = ref(storage, 'products/' + Date.now() + '_' + imageFile.name);
-      await uploadBytes(storageRef, imageFile);
-      imageUrl = await getDownloadURL(storageRef);
+      // NOTE: This requires "Unsigned Uploads" to be enabled in your ImageKit dashboard.
+      const uploadResponse = await imagekit.upload({
+        file: imageFile,
+        fileName: Date.now() + "_" + imageFile.name.replace(/[^a-zA-Z0-9.]/g, "")
+      });
+      imageUrl = uploadResponse.url;
     }
 
-    // 2. Prepare JSON Data
+    // B. Prepare JSON Data
     const salePriceVal = document.getElementById('prod-sale').value;
     const productData = {
       name: document.getElementById('prod-name').value,
@@ -105,10 +131,10 @@ productForm.addEventListener('submit', async (e) => {
       created_at: new Date().toISOString()
     };
 
-    // 3. Write to Firestore
+    // C. Write to Firestore
     await addDoc(collection(db, "products"), productData);
 
-    // 4. Success
+    // D. Success
     statusMsg.style.color = "green";
     statusMsg.innerText = "Product published successfully!";
     productForm.reset();
