@@ -3,25 +3,24 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // ==========================================
-// 1. CONFIGURATION (PASTE YOUR KEYS HERE)
+// 1. CONFIGURATION
 // ==========================================
 
-// Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
-    authDomain: "tharsos-af07d.firebaseapp.com",
-    projectId: "tharsos-af07d",
-    storageBucket: "tharsos-af07d.firebasestorage.app",
-    messagingSenderId: "229266745261",
-    appId: "1:229266745261:web:57b90fc331b098f1bda324"
-  };
+// YOUR FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
+  authDomain: "tharsos-af07d.firebaseapp.com",
+  projectId: "tharsos-af07d",
+  storageBucket: "tharsos-af07d.firebasestorage.app",
+  messagingSenderId: "229266745261",
+  appId: "1:229266745261:web:57b90fc331b098f1bda324"
+};
 
-
+// YOUR IMAGEKIT CONFIG
 const imagekitConfig = {
   publicKey: "public_nc8JLio9ktfuErRfQQcRFJN95nE=",
   urlEndpoint: "https://ik.imagekit.io/tharsos",
 };
-
 
 // ==========================================
 // 2. INITIALIZATION
@@ -33,9 +32,9 @@ try {
   auth = getAuth(app);
   db = getFirestore(app);
   imagekit = new ImageKit(imagekitConfig);
+  console.log("Firebase & ImageKit Initialized Successfully");
 } catch (error) {
   console.error("Initialization error:", error);
-  alert("Failed to initialize Firebase/ImageKit. Check your config keys in app.js");
 }
 
 // DOM Elements
@@ -55,11 +54,11 @@ const statusMsg = document.getElementById('status-msg');
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault(); // Stop page reload
   
-  // Get values and trim accidental spaces
   const emailInput = document.getElementById('email').value.trim();
   const passwordInput = document.getElementById('password').value.trim();
   
-  // Check if fields are empty before hitting Firebase
+  console.log("Attempting login for:", emailInput);
+
   if (!emailInput || !passwordInput) {
     loginError.innerText = "Please enter both email and password.";
     return;
@@ -70,14 +69,14 @@ loginForm.addEventListener('submit', (e) => {
   loginError.innerText = '';
   
   signInWithEmailAndPassword(auth, emailInput, passwordInput)
-    .then(() => {
+    .then((userCredential) => {
+      console.log("Login Successful! User:", userCredential.user);
       loginForm.reset();
       loginBtn.innerText = 'Login';
       loginBtn.disabled = false;
     })
     .catch((error) => {
-      console.error(error);
-      // Clean up error message for the user
+      console.error("Login Error:", error);
       let msg = error.message.replace("Firebase: ", "");
       loginError.innerText = msg;
       loginBtn.innerText = 'Login';
@@ -89,20 +88,31 @@ logoutBtn.addEventListener('click', () => {
   signOut(auth);
 });
 
+// ==========================================
+// 4. AUTH STATE OBSERVER (Screen Switching)
+// ==========================================
 onAuthStateChanged(auth, (user) => {
+  console.log("Auth State Changed. Current user:", user);
+  
   if (user) {
-    loginView.classList.remove('active');
-    adminView.classList.add('active');
+    console.log("User is logged in. Forcing Admin View.");
+    
+    // Failsafe: Force display styles directly to bypass any CSS conflicts
+    loginView.style.display = 'none';
+    adminView.style.display = 'block';
   } else {
-    adminView.classList.remove('active');
-    loginView.classList.add('active');
+    console.log("No user. Forcing Login View.");
+    
+    loginView.style.display = 'flex';
+    adminView.style.display = 'none';
+    
     loginBtn.innerText = 'Login';
     loginBtn.disabled = false;
   }
 });
 
 // ==========================================
-// 4. PRODUCT SUBMISSION (ImageKit + Firestore)
+// 5. PRODUCT SUBMISSION (ImageKit + Firestore)
 // ==========================================
 productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -117,7 +127,6 @@ productForm.addEventListener('submit', async (e) => {
     let imageUrl = '';
     
     if (imageFile) {
-      // This requires "Allow Unsigned Uploads" to be enabled in your ImageKit dashboard
       const uploadResponse = await imagekit.upload({
         file: imageFile,
         fileName: Date.now() + "_" + imageFile.name.replace(/[^a-zA-Z0-9.]/g, "")
