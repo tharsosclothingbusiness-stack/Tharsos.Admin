@@ -53,6 +53,7 @@ body {
 .btn-ghost { border-color: var(--border); }
 .btn-ghost:hover { border-color: var(--text); }
 .btn-full { width: 100%; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .badge {
   background: var(--text);
   color: #fff;
@@ -111,7 +112,7 @@ body {
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
   border-color: var(--text);
 }
-.error-msg { color: var(--red); font-size: 0.85rem; margin-top: 16px; }
+.error-msg { color: var(--red); font-size: 0.85rem; margin-top: 16px; font-weight: 500; }
 
 /* Admin Dashboard */
 .admin-header {
