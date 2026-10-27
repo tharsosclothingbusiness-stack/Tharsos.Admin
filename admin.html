@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THARSOS — Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- LOGIN VIEW -->
+  <div id="login-view" class="view active">
+    <div class="login-box">
+      <h1 class="wordmark">THARSOS</h1>
+      <p class="subtitle">Admin Portal Access</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="admin@tharsos.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-solid btn-full">Login</button>
+      </form>
+      <p id="login-error" class="error-msg"></p>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD VIEW -->
+  <div id="admin-view" class="view">
+    <header class="admin-header">
+      <div class="header-inner">
+        <div class="header-left">
+          <h1 class="wordmark">THARSOS</h1>
+          <span class="badge">ADMIN</span>
+        </div>
+        <div class="header-right">
+          <button id="logout-btn" class="btn btn-ghost">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-container">
+        <div class="admin-header-text">
+          <h2>Add New Product</h2>
+          <p>Publish directly to the storefront. No rebuilds required.</p>
+        </div>
+
+        <form id="product-form" class="admin-form">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prod-name">Product Name</label>
+              <input type="text" id="prod-name" required placeholder="e.g., Heavyweight Tee">
+            </div>
+            <div class="form-group">
+              <label for="prod-price">Price ($)</label>
+              <input type="number" id="prod-price" required placeholder="45">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prod-sale">Sale Price ($) <span class="optional">(Optional)</span></label>
+              <input type="number" id="prod-sale" placeholder="35">
+            </div>
+            <div class="form-group">
+              <label for="prod-status">Status</label>
+              <select id="prod-status">
+                <option value="in-stock">In Stock</option>
+                <option value="preorder">Pre-Order</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prod-desc">Description</label>
+            <textarea id="prod-desc" rows="3" required placeholder="100% Cotton. Boxy fit."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prod-stripe">Stripe Price ID</label>
+              <input type="text" id="prod-stripe" required placeholder="price_12345">
+            </div>
+            <div class="form-group">
+              <label for="prod-printful">Printful Variant ID</label>
+              <input type="text" id="prod-printful" required placeholder="4012">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prod-image">Product Image</label>
+            <input type="file" id="prod-image" accept="image/*" required>
+            <p class="help-text">Image will be uploaded to Firebase Storage.</p>
+          </div>
+
+          <button type="submit" class="btn btn-solid btn-full" id="submit-btn">Publish Product</button>
+          <p id="status-msg" class="status-msg"></p>
+
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase SDK (v10 Modular) -->
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
