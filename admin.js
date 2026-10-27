@@ -6,14 +6,16 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 // ==========================================
 // ⚠️ REPLACE WITH YOUR FIREBASE CONFIG
 // ==========================================
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+ // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
+    authDomain: "tharsos-af07d.firebaseapp.com",
+    projectId: "tharsos-af07d",
+    storageBucket: "tharsos-af07d.firebasestorage.app",
+    messagingSenderId: "229266745261",
+    appId: "1:229266745261:web:57b90fc331b098f1bda324"
+  };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
