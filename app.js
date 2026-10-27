@@ -15,21 +15,21 @@ const firebaseConfig = {
   appId: "1:229266745261:web:57b90fc331b098f1bda324"
 };
 
-const imagekitConfig = {
-  publicKey: "public_nc8JLio9ktfuErRfQQcRFJN95nE=",
-  urlEndpoint: "https://ik.imagekit.io/tharsos",
+const cloudinaryConfig = {
+  cloudName: "fsfaie7d", // ⚠️ PASTE YOUR CLOUDINARY CLOUD NAME HERE
+  uploadPreset: "tharsos_preset" // Or whatever you named your unsigned preset
 };
 
 // ==========================================
 // 2. INITIALIZATION
 // ==========================================
-let app, auth, db, imagekit;
+let app, auth, db;
 
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  imagekit = new ImageKit(imagekitConfig);
+  console.log("Firebase Initialized");
 } catch (error) {
   console.error("Initialization error:", error);
 }
@@ -50,7 +50,6 @@ const statusMsg = document.getElementById('status-msg');
 // ==========================================
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault(); 
-  
   const emailInput = document.getElementById('email').value.trim();
   const passwordInput = document.getElementById('password').value.trim();
   
@@ -81,7 +80,6 @@ logoutBtn.addEventListener('click', () => {
   signOut(auth);
 });
 
-// Screen Switching
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginView.style.display = 'none';
@@ -95,7 +93,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ==========================================
-// 4. PRODUCT SUBMISSION (Sync Method)
+// 4. PRODUCT SUBMISSION (Cloudinary + Firestore)
 // ==========================================
 productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -105,16 +103,26 @@ productForm.addEventListener('submit', async (e) => {
   statusMsg.style.color = 'var(--muted)';
 
   try {
-    // A. Upload Storefront Image to ImageKit
     const imageFile = document.getElementById('prod-image').files[0];
     let imageUrl = '';
     
+    // A. Upload Image to Cloudinary (No backend needed!)
     if (imageFile) {
-      const uploadResponse = await imagekit.upload({
-        file: imageFile,
-        fileName: Date.now() + "_" + imageFile.name.replace(/[^a-zA-Z0-9.]/g, "")
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData
       });
-      imageUrl = uploadResponse.url;
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image to Cloudinary. Check your Cloud Name and Unsigned Preset.");
+      }
+
+      const data = await response.json();
+      imageUrl = data.secure_url; 
     }
 
     // B. Prepare JSON Data
@@ -126,10 +134,7 @@ productForm.addEventListener('submit', async (e) => {
       description: document.getElementById('prod-desc').value,
       status: document.getElementById('prod-status').value,
       stripe_price_id: document.getElementById('prod-stripe').value,
-      
-      // This field now specifically holds the Sync Variant ID
       printful_sync_variant_id: document.getElementById('prod-printful').value,
-      
       image_url: imageUrl,
       created_at: new Date().toISOString()
     };
