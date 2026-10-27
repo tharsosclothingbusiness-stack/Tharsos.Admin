@@ -4,10 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THARSOS — Admin Portal</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css">
+  
+  <!-- CSS (Cache busted) -->
+  <link rel="stylesheet" href="style.css?v=1">
+
+  <!-- ImageKit SDK -->
+  <script src="https://unpkg.com/imagekit-javascript/dist/imagekit.min.js"></script>
 </head>
 <body>
 
@@ -16,7 +22,9 @@
     <div class="login-box">
       <h1 class="wordmark">THARSOS</h1>
       <p class="subtitle">Admin Portal Access</p>
-      <form id="login-form">
+      
+      <!-- novalidate prevents default browser popups, we handle it in JS -->
+      <form id="login-form" novalidate>
         <div class="form-group">
           <label for="email">Email</label>
           <input type="email" id="email" required placeholder="admin@tharsos.com">
@@ -25,7 +33,7 @@
           <label for="password">Password</label>
           <input type="password" id="password" required placeholder="••••••••">
         </div>
-        <button type="submit" class="btn btn-solid btn-full">Login</button>
+        <button type="submit" class="btn btn-solid btn-full" id="login-btn">Login</button>
       </form>
       <p id="login-error" class="error-msg"></p>
     </div>
@@ -52,7 +60,7 @@
           <p>Publish directly to the storefront. No rebuilds required.</p>
         </div>
 
-        <form id="product-form" class="admin-form">
+        <form id="product-form">
           
           <div class="form-row">
             <div class="form-group">
@@ -98,7 +106,7 @@
           <div class="form-group">
             <label for="prod-image">Product Image</label>
             <input type="file" id="prod-image" accept="image/*" required>
-            <p class="help-text">Image will be uploaded to Firebase Storage.</p>
+            <p class="help-text">Image will be uploaded to ImageKit.</p>
           </div>
 
           <button type="submit" class="btn btn-solid btn-full" id="submit-btn">Publish Product</button>
@@ -109,7 +117,7 @@
     </main>
   </div>
 
-  <!-- Firebase SDK (v10 Modular) -->
-  <script type="module" src="admin.js"></script>
+  <!-- App Logic -->
+  <script type="module" src="app.js?v=1"></script>
 </body>
 </html>
