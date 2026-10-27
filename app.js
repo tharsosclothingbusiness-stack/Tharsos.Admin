@@ -6,7 +6,6 @@ import { getFirestore, collection, addDoc } from "https://www.gstatic.com/fireba
 // 1. CONFIGURATION
 // ==========================================
 
-// YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
   authDomain: "tharsos-af07d.firebaseapp.com",
@@ -16,7 +15,6 @@ const firebaseConfig = {
   appId: "1:229266745261:web:57b90fc331b098f1bda324"
 };
 
-// YOUR IMAGEKIT CONFIG
 const imagekitConfig = {
   publicKey: "public_nc8JLio9ktfuErRfQQcRFJN95nE=",
   urlEndpoint: "https://ik.imagekit.io/tharsos",
@@ -32,7 +30,6 @@ try {
   auth = getAuth(app);
   db = getFirestore(app);
   imagekit = new ImageKit(imagekitConfig);
-  console.log("Firebase & ImageKit Initialized Successfully");
 } catch (error) {
   console.error("Initialization error:", error);
 }
@@ -52,13 +49,11 @@ const statusMsg = document.getElementById('status-msg');
 // 3. AUTHENTICATION LOGIC
 // ==========================================
 loginForm.addEventListener('submit', (e) => {
-  e.preventDefault(); // Stop page reload
+  e.preventDefault(); 
   
   const emailInput = document.getElementById('email').value.trim();
   const passwordInput = document.getElementById('password').value.trim();
   
-  console.log("Attempting login for:", emailInput);
-
   if (!emailInput || !passwordInput) {
     loginError.innerText = "Please enter both email and password.";
     return;
@@ -69,14 +64,12 @@ loginForm.addEventListener('submit', (e) => {
   loginError.innerText = '';
   
   signInWithEmailAndPassword(auth, emailInput, passwordInput)
-    .then((userCredential) => {
-      console.log("Login Successful! User:", userCredential.user);
+    .then(() => {
       loginForm.reset();
       loginBtn.innerText = 'Login';
       loginBtn.disabled = false;
     })
     .catch((error) => {
-      console.error("Login Error:", error);
       let msg = error.message.replace("Firebase: ", "");
       loginError.innerText = msg;
       loginBtn.innerText = 'Login';
@@ -88,31 +81,21 @@ logoutBtn.addEventListener('click', () => {
   signOut(auth);
 });
 
-// ==========================================
-// 4. AUTH STATE OBSERVER (Screen Switching)
-// ==========================================
+// Screen Switching
 onAuthStateChanged(auth, (user) => {
-  console.log("Auth State Changed. Current user:", user);
-  
   if (user) {
-    console.log("User is logged in. Forcing Admin View.");
-    
-    // Failsafe: Force display styles directly to bypass any CSS conflicts
     loginView.style.display = 'none';
     adminView.style.display = 'block';
   } else {
-    console.log("No user. Forcing Login View.");
-    
     loginView.style.display = 'flex';
     adminView.style.display = 'none';
-    
     loginBtn.innerText = 'Login';
     loginBtn.disabled = false;
   }
 });
 
 // ==========================================
-// 5. PRODUCT SUBMISSION (ImageKit + Firestore)
+// 4. PRODUCT SUBMISSION (Sync Method)
 // ==========================================
 productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -122,7 +105,7 @@ productForm.addEventListener('submit', async (e) => {
   statusMsg.style.color = 'var(--muted)';
 
   try {
-    // A. Upload Image to ImageKit
+    // A. Upload Storefront Image to ImageKit
     const imageFile = document.getElementById('prod-image').files[0];
     let imageUrl = '';
     
@@ -143,7 +126,10 @@ productForm.addEventListener('submit', async (e) => {
       description: document.getElementById('prod-desc').value,
       status: document.getElementById('prod-status').value,
       stripe_price_id: document.getElementById('prod-stripe').value,
-      printful_variant_id: document.getElementById('prod-printful').value,
+      
+      // This field now specifically holds the Sync Variant ID
+      printful_sync_variant_id: document.getElementById('prod-printful').value,
+      
       image_url: imageUrl,
       created_at: new Date().toISOString()
     };
