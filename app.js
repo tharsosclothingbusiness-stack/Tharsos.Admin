@@ -3,7 +3,7 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // ==========================================
-// 1. CONFIGURATION
+// 1. CONFIGURATION (PASTE YOUR KEYS HERE)
 // ==========================================
 
 // Your web app's Firebase configuration
@@ -16,11 +16,12 @@ import { getFirestore, collection, addDoc } from "https://www.gstatic.com/fireba
     appId: "1:229266745261:web:57b90fc331b098f1bda324"
   };
 
-// ⚠️ REPLACE WITH YOUR IMAGEKIT CONFIG
+
 const imagekitConfig = {
   publicKey: "public_nc8JLio9ktfuErRfQQcRFJN95nE=",
   urlEndpoint: "https://ik.imagekit.io/tharsos",
 };
+
 
 // ==========================================
 // 2. INITIALIZATION
@@ -34,7 +35,7 @@ try {
   imagekit = new ImageKit(imagekitConfig);
 } catch (error) {
   console.error("Initialization error:", error);
-  alert("Failed to initialize Firebase. Did you paste your config keys in app.js?");
+  alert("Failed to initialize Firebase/ImageKit. Check your config keys in app.js");
 }
 
 // DOM Elements
@@ -52,16 +53,23 @@ const statusMsg = document.getElementById('status-msg');
 // 3. AUTHENTICATION LOGIC
 // ==========================================
 loginForm.addEventListener('submit', (e) => {
-  e.preventDefault(); // This stops the page reload!
+  e.preventDefault(); // Stop page reload
   
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  // Get values and trim accidental spaces
+  const emailInput = document.getElementById('email').value.trim();
+  const passwordInput = document.getElementById('password').value.trim();
   
+  // Check if fields are empty before hitting Firebase
+  if (!emailInput || !passwordInput) {
+    loginError.innerText = "Please enter both email and password.";
+    return;
+  }
+
   loginBtn.innerText = 'Logging in...';
   loginBtn.disabled = true;
   loginError.innerText = '';
   
-  signInWithEmailAndPassword(auth, email, password)
+  signInWithEmailAndPassword(auth, emailInput, passwordInput)
     .then(() => {
       loginForm.reset();
       loginBtn.innerText = 'Login';
@@ -69,7 +77,7 @@ loginForm.addEventListener('submit', (e) => {
     })
     .catch((error) => {
       console.error(error);
-      // Clean up error message
+      // Clean up error message for the user
       let msg = error.message.replace("Firebase: ", "");
       loginError.innerText = msg;
       loginBtn.innerText = 'Login';
@@ -109,7 +117,7 @@ productForm.addEventListener('submit', async (e) => {
     let imageUrl = '';
     
     if (imageFile) {
-      // NOTE: This requires "Unsigned Uploads" to be enabled in your ImageKit dashboard.
+      // This requires "Allow Unsigned Uploads" to be enabled in your ImageKit dashboard
       const uploadResponse = await imagekit.upload({
         file: imageFile,
         fileName: Date.now() + "_" + imageFile.name.replace(/[^a-zA-Z0-9.]/g, "")
