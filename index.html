@@ -7,9 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
+
+  <!-- LOGIN VIEW -->
   <div id="login-view" class="view active">
     <div class="login-box">
       <h1 class="wordmark">THARSOS</h1>
@@ -29,6 +31,7 @@
     </div>
   </div>
 
+  <!-- ADMIN DASHBOARD VIEW -->
   <div id="admin-view" class="view">
     <header class="admin-header">
       <div class="header-inner">
@@ -43,82 +46,155 @@
     </header>
 
     <main class="admin-main">
-      <div class="admin-container">
-        <div class="admin-header-text">
-          <h2>Add New Product</h2>
-          <p>Publish directly to the storefront.</p>
+      <!-- TABS -->
+      <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="tab-products">Products</button>
+        <button class="tab-btn" data-tab="tab-collections">Collections</button>
+        <button class="tab-btn" data-tab="tab-settings">Site Settings</button>
+      </div>
+
+      <div class="admin-content">
+        
+        <!-- PRODUCTS TAB -->
+        <div id="tab-products" class="tab-pane active">
+          <div class="admin-container">
+            <div class="admin-header-text">
+              <h2 id="product-form-title">Add New Product</h2>
+              <p>Manage your storefront inventory.</p>
+            </div>
+
+            <form id="product-form">
+              <input type="hidden" id="edit-product-id">
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="prod-name">Product Name</label>
+                  <input type="text" id="prod-name" required placeholder="e.g., Heavyweight Tee">
+                </div>
+                <div class="form-group">
+                  <label for="prod-price">Price ($)</label>
+                  <input type="number" id="prod-price" required placeholder="45">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="prod-sale">Sale Price ($) <span class="optional">(Optional)</span></label>
+                  <input type="number" id="prod-sale" placeholder="35">
+                </div>
+                <div class="form-group">
+                  <label for="prod-status">Status</label>
+                  <select id="prod-status">
+                    <option value="in-stock">In Stock</option>
+                    <option value="preorder">Pre-Order</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="prod-collection">Collection</label>
+                  <select id="prod-collection">
+                    <option value="">None (Standalone)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-desc">Short Description</label>
+                <input type="text" id="prod-desc" required placeholder="100% Cotton. Boxy fit.">
+              </div>
+
+              <div class="form-group">
+                <label for="prod-details">Full Details</label>
+                <textarea id="prod-details" rows="3" required placeholder="Describe the fit, fabric, etc."></textarea>
+              </div>
+
+              <div class="form-group" style="background: #f9f9f9; padding: 16px; border: 1px solid var(--border);">
+                <label>Printful Sync Variant IDs (By Size)</label>
+                <div class="form-row" style="gap: 12px;">
+                  <div><label for="var-s">Size S</label><input type="text" id="var-s"></div>
+                  <div><label for="var-m">Size M</label><input type="text" id="var-m"></div>
+                  <div><label for="var-l">Size L</label><input type="text" id="var-l"></div>
+                  <div><label for="var-xl">Size XL</label><input type="text" id="var-xl"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-image">Upload Images (Select multiple for a gallery)</label>
+                <input type="file" id="prod-image" accept="image/*" multiple>
+                <div id="existing-images" style="display: flex; gap: 10px; margin-top: 10px;"></div>
+              </div>
+
+              <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="submit" class="btn btn-solid" style="flex: 1;" id="submit-btn">Publish Product</button>
+                <button type="button" class="btn btn-ghost" id="cancel-edit-btn" style="display: none;">Cancel</button>
+              </div>
+              <p id="status-msg" class="status-msg"></p>
+            </form>
+          </div>
+
+          <div class="admin-container" style="margin-top: 32px;">
+            <h2>Existing Products</h2>
+            <div id="admin-product-list" style="margin-top: 24px;"></div>
+          </div>
         </div>
 
-        <form id="product-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="prod-name">Product Name</label>
-              <input type="text" id="prod-name" required placeholder="e.g., Heavyweight Tee">
+        <!-- COLLECTIONS TAB -->
+        <div id="tab-collections" class="tab-pane">
+          <div class="admin-container">
+            <div class="admin-header-text">
+              <h2>Manage Collections</h2>
+              <p>Group products into collections (e.g., St. Joseph, Vanguard).</p>
             </div>
-            <div class="form-group">
-              <label for="prod-price">Price ($)</label>
-              <input type="number" id="prod-price" required placeholder="45">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="prod-sale">Sale Price ($) <span class="optional">(Optional)</span></label>
-              <input type="number" id="prod-sale" placeholder="35">
-            </div>
-            <div class="form-group">
-              <label for="prod-status">Status</label>
-              <select id="prod-status">
-                <option value="in-stock">In Stock</option>
-                <option value="preorder">Pre-Order</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="prod-desc">Short Description (For Grid)</label>
-            <input type="text" id="prod-desc" required placeholder="100% Cotton. Boxy fit.">
-          </div>
-
-          <div class="form-group">
-            <label for="prod-details">Full Details (For Product Page)</label>
-            <textarea id="prod-details" rows="4" required placeholder="Describe the fit, the fabric weight, the inspiration..."></textarea>
-          </div>
-
-          <div class="form-group" style="background: #f9f9f9; padding: 16px; border: 1px solid var(--border);">
-            <label>Printful Sync Variant IDs (By Size)</label>
-            <p class="help-text" style="margin-bottom: 12px;">Leave a size blank if you don't offer it.</p>
-            <div class="form-row" style="gap: 12px;">
-              <div>
-                <label for="var-s">Size S</label>
-                <input type="text" id="var-s" placeholder="e.g., 4752058849">
+            <form id="collection-form">
+              <div class="form-group">
+                <label for="col-name">Collection Name</label>
+                <input type="text" id="col-name" required placeholder="e.g., St. Joseph">
               </div>
-              <div>
-                <label for="var-m">Size M</label>
-                <input type="text" id="var-m" placeholder="e.g., 4752058850">
+              <div class="form-group">
+                <label for="col-desc">Description</label>
+                <input type="text" id="col-desc" required placeholder="A collection for the worker.">
               </div>
-              <div>
-                <label for="var-l">Size L</label>
-                <input type="text" id="var-l" placeholder="e.g., 4752058851">
+              <div class="form-group">
+                <label for="col-banner">Banner Image</label>
+                <input type="file" id="col-banner" accept="image/*" required>
               </div>
-              <div>
-                <label for="var-xl">Size XL</label>
-                <input type="text" id="var-xl" placeholder="e.g., 4752058852">
-              </div>
+              <button type="submit" class="btn btn-solid btn-full" id="col-submit-btn">Create Collection</button>
+              <p id="col-status-msg" class="status-msg"></p>
+            </form>
+          </div>
+          <div class="admin-container" style="margin-top: 32px;">
+            <h2>Existing Collections</h2>
+            <div id="admin-collection-list" style="margin-top: 24px;"></div>
+          </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="tab-settings" class="tab-pane">
+          <div class="admin-container">
+            <div class="admin-header-text">
+              <h2>Site Settings</h2>
+              <p>Global toggles and homepage content.</p>
             </div>
+            <form id="settings-form">
+              <div class="form-group">
+                <label><input type="checkbox" id="toggle-clearance"> Show Clearance Section in Nav</label>
+              </div>
+              <div class="form-group">
+                <label for="carousel-images">Homepage Carousel Images</label>
+                <input type="file" id="carousel-images" accept="image/*" multiple>
+                <p class="help-text">Upload images for the homepage hero slider.</p>
+              </div>
+              <button type="submit" class="btn btn-solid btn-full" id="settings-btn">Save Settings</button>
+              <p id="settings-status-msg" class="status-msg"></p>
+            </form>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="prod-image">Product Image</label>
-            <input type="file" id="prod-image" accept="image/*" required>
-          </div>
-
-          <button type="submit" class="btn btn-solid btn-full" id="submit-btn">Publish Product</button>
-          <p id="status-msg" class="status-msg"></p>
-        </form>
       </div>
     </main>
   </div>
-  <script type="module" src="app.js?v=3"></script>
+  <script type="module" src="app.js?v=7"></script>
 </body>
 </html>
