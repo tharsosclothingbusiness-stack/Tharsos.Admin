@@ -4,21 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THARSOS — Admin Portal</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-
-  <!-- LOGIN VIEW -->
   <div id="login-view" class="view active">
     <div class="login-box">
       <h1 class="wordmark">THARSOS</h1>
       <p class="subtitle">Admin Portal Access</p>
-      
       <form id="login-form" novalidate>
         <div class="form-group">
           <label for="email">Email</label>
@@ -34,7 +29,6 @@
     </div>
   </div>
 
-  <!-- ADMIN DASHBOARD VIEW -->
   <div id="admin-view" class="view">
     <header class="admin-header">
       <div class="header-inner">
@@ -52,11 +46,10 @@
       <div class="admin-container">
         <div class="admin-header-text">
           <h2>Add New Product</h2>
-          <p>Publish directly to the storefront. No rebuilds required.</p>
+          <p>Publish directly to the storefront.</p>
         </div>
 
         <form id="product-form">
-          
           <div class="form-row">
             <div class="form-group">
               <label for="prod-name">Product Name</label>
@@ -83,36 +76,49 @@
           </div>
 
           <div class="form-group">
-            <label for="prod-desc">Description</label>
-            <textarea id="prod-desc" rows="3" required placeholder="100% Cotton. Boxy fit."></textarea>
+            <label for="prod-desc">Short Description (For Grid)</label>
+            <input type="text" id="prod-desc" required placeholder="100% Cotton. Boxy fit.">
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="prod-stripe">Stripe Price ID</label>
-              <input type="text" id="prod-stripe" required placeholder="price_12345">
-            </div>
-            <div class="form-group">
-              <label for="prod-printful">Printful Sync Variant ID</label>
-              <input type="text" id="prod-printful" required placeholder="4752058849">
-              <p class="help-text">Found in your Printful dashboard.</p>
+          <div class="form-group">
+            <label for="prod-details">Full Details (For Product Page)</label>
+            <textarea id="prod-details" rows="4" required placeholder="Describe the fit, the fabric weight, the inspiration..."></textarea>
+          </div>
+
+          <div class="form-group" style="background: #f9f9f9; padding: 16px; border: 1px solid var(--border);">
+            <label>Printful Sync Variant IDs (By Size)</label>
+            <p class="help-text" style="margin-bottom: 12px;">Leave a size blank if you don't offer it.</p>
+            <div class="form-row" style="gap: 12px;">
+              <div>
+                <label for="var-s">Size S</label>
+                <input type="text" id="var-s" placeholder="e.g., 4752058849">
+              </div>
+              <div>
+                <label for="var-m">Size M</label>
+                <input type="text" id="var-m" placeholder="e.g., 4752058850">
+              </div>
+              <div>
+                <label for="var-l">Size L</label>
+                <input type="text" id="var-l" placeholder="e.g., 4752058851">
+              </div>
+              <div>
+                <label for="var-xl">Size XL</label>
+                <input type="text" id="var-xl" placeholder="e.g., 4752058852">
+              </div>
             </div>
           </div>
 
           <div class="form-group">
             <label for="prod-image">Product Image</label>
             <input type="file" id="prod-image" accept="image/*" required>
-            <p class="help-text">Upload the final mockup or lifestyle image.</p>
           </div>
 
           <button type="submit" class="btn btn-solid btn-full" id="submit-btn">Publish Product</button>
           <p id="status-msg" class="status-msg"></p>
-
         </form>
       </div>
     </main>
   </div>
-
   <script type="module" src="app.js?v=3"></script>
 </body>
 </html>
