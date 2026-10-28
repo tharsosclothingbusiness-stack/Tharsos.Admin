@@ -2,10 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ==========================================
-// 1. CONFIGURATION
-// ==========================================
-
 const firebaseConfig = {
   apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
   authDomain: "tharsos-af07d.firebaseapp.com",
@@ -17,24 +13,16 @@ const firebaseConfig = {
 
 const cloudinaryConfig = {
   cloudName: "fsfaie7d", // ⚠️ PASTE YOUR CLOUDINARY CLOUD NAME HERE
-  uploadPreset: "tharsos_preset" // Or whatever you named your unsigned preset
+  uploadPreset: "tharsos_preset" 
 };
 
-// ==========================================
-// 2. INITIALIZATION
-// ==========================================
 let app, auth, db;
-
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  console.log("Firebase Initialized");
-} catch (error) {
-  console.error("Initialization error:", error);
-}
+} catch (error) { console.error(error); }
 
-// DOM Elements
 const loginView = document.getElementById('login-view');
 const adminView = document.getElementById('admin-view');
 const loginForm = document.getElementById('login-form');
@@ -45,9 +33,6 @@ const productForm = document.getElementById('product-form');
 const submitBtn = document.getElementById('submit-btn');
 const statusMsg = document.getElementById('status-msg');
 
-// ==========================================
-// 3. AUTHENTICATION LOGIC
-// ==========================================
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault(); 
   const emailInput = document.getElementById('email').value.trim();
@@ -57,28 +42,20 @@ loginForm.addEventListener('submit', (e) => {
     loginError.innerText = "Please enter both email and password.";
     return;
   }
-
   loginBtn.innerText = 'Logging in...';
   loginBtn.disabled = true;
   loginError.innerText = '';
   
   signInWithEmailAndPassword(auth, emailInput, passwordInput)
-    .then(() => {
-      loginForm.reset();
-      loginBtn.innerText = 'Login';
-      loginBtn.disabled = false;
-    })
+    .then(() => { loginForm.reset(); loginBtn.innerText = 'Login'; loginBtn.disabled = false; })
     .catch((error) => {
-      let msg = error.message.replace("Firebase: ", "");
-      loginError.innerText = msg;
+      loginError.innerText = error.message.replace("Firebase: ", "");
       loginBtn.innerText = 'Login';
       loginBtn.disabled = false;
     });
 });
 
-logoutBtn.addEventListener('click', () => {
-  signOut(auth);
-});
+logoutBtn.addEventListener('click', () => signOut(auth));
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -92,9 +69,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// ==========================================
-// 4. PRODUCT SUBMISSION (Cloudinary + Firestore)
-// ==========================================
 productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitBtn.disabled = true;
@@ -106,43 +80,42 @@ productForm.addEventListener('submit', async (e) => {
     const imageFile = document.getElementById('prod-image').files[0];
     let imageUrl = '';
     
-    // A. Upload Image to Cloudinary (No backend needed!)
     if (imageFile) {
       const formData = new FormData();
       formData.append('file', imageFile);
       formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-
       const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
         method: 'POST',
         body: formData
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image to Cloudinary. Check your Cloud Name and Unsigned Preset.");
-      }
-
+      if (!response.ok) throw new Error("Failed to upload image.");
       const data = await response.json();
       imageUrl = data.secure_url; 
     }
 
-    // B. Prepare JSON Data
+    // Capture sizes dynamically
+    const sizes = {};
+    if(document.getElementById('var-s').value) sizes['S'] = document.getElementById('var-s').value;
+    if(document.getElementById('var-m').value) sizes['M'] = document.getElementById('var-m').value;
+    if(document.getElementById('var-l').value) sizes['L'] = document.getElementById('var-l').value;
+    if(document.getElementById('var-xl').value) sizes['XL'] = document.getElementById('var-xl').value;
+
     const salePriceVal = document.getElementById('prod-sale').value;
     const productData = {
       name: document.getElementById('prod-name').value,
       price: Number(document.getElementById('prod-price').value),
       sale_price: salePriceVal ? Number(salePriceVal) : null,
       description: document.getElementById('prod-desc').value,
+      details: document.getElementById('prod-details').value,
       status: document.getElementById('prod-status').value,
-      stripe_price_id: document.getElementById('prod-stripe').value,
-      printful_sync_variant_id: document.getElementById('prod-printful').value,
+      stripe_price_id: document.getElementById('prod-stripe') ? document.getElementById('prod-stripe').value : "", // (Will add stripe later)
+      sizes: sizes,
       image_url: imageUrl,
       created_at: new Date().toISOString()
     };
 
-    // C. Write to Firestore
     await addDoc(collection(db, "products"), productData);
 
-    // D. Success
     statusMsg.style.color = "green";
     statusMsg.innerText = "Product published successfully!";
     productForm.reset();
