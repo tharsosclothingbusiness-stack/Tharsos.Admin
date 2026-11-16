@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
   <div id="login-view" class="view active">
@@ -46,7 +46,6 @@
             <div class="admin-header-text"><h2 id="product-form-title">Add New Product</h2></div>
             <form id="product-form">
               <input type="hidden" id="edit-product-id">
-              
               <div class="form-row">
                 <div class="form-group"><label for="prod-name">Product Name</label><input type="text" id="prod-name" required></div>
                 <div class="form-group"><label for="prod-price">Price ($)</label><input type="number" id="prod-price" required></div>
@@ -56,10 +55,7 @@
                 <div class="form-group"><label for="prod-status">Status</label><select id="prod-status"><option value="in-stock">In Stock</option><option value="preorder">Pre-Order</option></select></div>
               </div>
               <div class="form-row">
-                <div class="form-group">
-                  <label for="prod-collection">Collection</label>
-                  <select id="prod-collection"><option value="">None (Standalone)</option></select>
-                </div>
+                <div class="form-group"><label for="prod-collection">Collection</label><select id="prod-collection"><option value="">None (Standalone)</option></select></div>
                 <div class="form-group" style="display: flex; align-items: center; margin-top: 28px;">
                   <input type="checkbox" id="prod-bestseller" style="width: 20px; height: 20px; margin-right: 10px;">
                   <label for="prod-bestseller" style="margin-bottom: 0; cursor: pointer;">Mark as Bestseller</label>
@@ -98,8 +94,8 @@
             <form id="collection-form">
               <div class="form-group"><label for="col-name">Collection Name</label><input type="text" id="col-name" required></div>
               <div class="form-group"><label for="col-desc">Short Description</label><input type="text" id="col-desc" required></div>
-              <div class="form-group"><label for="col-banner">Desktop Banner Image (16:9)</label><input type="file" id="col-banner" accept="image/*" required></div>
-              <div class="form-group"><label for="col-banner-mobile">Mobile Banner Image (4:5) <span style="color:var(--muted);font-size:0.8rem;">(Optional)</span></label><input type="file" id="col-banner-mobile" accept="image/*"></div>
+              <div class="form-group"><label for="col-banner">Desktop Image (16:9)</label><input type="file" id="col-banner" accept="image/*" required></div>
+              <div class="form-group"><label for="col-banner-mobile">Mobile Image (4:5) <span class="optional">(Optional)</span></label><input type="file" id="col-banner-mobile" accept="image/*"></div>
               <button type="submit" class="btn btn-solid btn-full" id="col-submit-btn">Create Collection</button>
             </form>
           </div>
@@ -109,23 +105,33 @@
         <!-- BANNERS TAB -->
         <div id="tab-banners" class="tab-pane">
           <div class="admin-container">
-            <div class="admin-header-text"><h2>Manage Banners</h2><p>Create banners here, then select them in Site Settings to use in the carousel.</p></div>
+            <div class="admin-header-text"><h2>Manage Banners</h2><p>Create independent promotional banners for the homepage carousel.</p></div>
             <form id="banner-form">
-              <div class="form-group"><label for="banner-name">Internal Name (for Admin reference)</label><input type="text" id="banner-name" required placeholder="e.g., St Joseph Launch"></div>
-              <div class="form-group"><label for="banner-title">Display Title</label><input type="text" id="banner-title" required placeholder="Shop the New Collection"></div>
-              <div class="form-group"><label for="banner-btn">Button Text</label><input type="text" id="banner-btn" required placeholder="Shop Now"></div>
-              <div class="form-group">
-                <label for="banner-link">Link Target</label>
-                <select id="banner-link">
-                  <option value="index.html">Shop All (Homepage)</option>
-                  <!-- Options injected via JS -->
-                </select>
-              </div>
+              <div class="form-group"><label for="banner-name">Internal Name</label><input type="text" id="banner-name" required placeholder="e.g., Easter Drop"></div>
+              
               <div class="form-row">
                 <div class="form-group"><label for="banner-desk">Desktop Image (16:9)</label><input type="file" id="banner-desk" accept="image/*" required></div>
                 <div class="form-group"><label for="banner-mob">Mobile Image (4:5) <span class="optional">(Optional)</span></label><input type="file" id="banner-mob" accept="image/*"></div>
               </div>
-              <button type="submit" class="btn btn-solid btn-full" id="banner-submit-btn">Create Banner</button>
+
+              <div class="form-group" style="background: #f9f9f9; padding: 16px; border: 1px solid var(--border); margin-top: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="banner-show-btn" style="width: 18px; height: 18px;"> Include a Button on this Banner
+                </label>
+                
+                <div id="banner-btn-settings" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                  <div class="form-group"><label for="banner-btn-text">Button Text</label><input type="text" id="banner-btn-text" placeholder="Shop Now"></div>
+                  <div class="form-group">
+                    <label for="banner-link">Link Target</label>
+                    <select id="banner-link">
+                      <option value="index.html">Shop All (Homepage)</option>
+                      <!-- Options injected via JS -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-solid btn-full" id="banner-submit-btn" style="margin-top: 24px;">Create Banner</button>
             </form>
           </div>
           <div class="admin-container" style="margin-top: 32px;"><h2>Existing Banners</h2><div id="admin-banner-list" style="margin-top: 24px;" class="admin-grid"></div></div>
@@ -136,7 +142,6 @@
           <div class="admin-container">
             <div class="admin-header-text"><h2>Site Settings</h2></div>
             <form id="settings-form">
-              
               <div class="form-group" style="background: #f9f9f9; padding: 20px; border: 1px solid var(--border); margin-bottom: 24px;">
                 <label style="margin-bottom: 16px; display: block; font-size: 0.9rem; font-weight: 600;">Homepage Hero Banner</label>
                 <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; cursor: pointer;">
@@ -147,31 +152,22 @@
                   <div class="form-group">
                     <label for="hero-type">Banner Type</label>
                     <select id="hero-type">
-                      <option value="carousel">Carousel (Select below)</option>
+                      <option value="carousel">Banners (Select below)</option>
                       <option value="collection">Specific Collection</option>
                     </select>
                   </div>
                   
                   <div id="hero-collection-settings" style="display: none; background: #fff; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border);">
-                    <div class="form-group">
-                      <label for="hero-collection-select">Choose Collection</label>
-                      <select id="hero-collection-select"></select>
-                    </div>
+                    <div class="form-group"><label for="hero-collection-select">Choose Collection</label><select id="hero-collection-select"></select></div>
                   </div>
 
                   <div id="hero-carousel-settings" style="background: #fff; padding: 16px; border: 1px solid var(--border);">
                     <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px;">Select Banners for Carousel</label>
-                    <div id="carousel-banner-list" style="display: flex; flex-direction: column; gap: 8px;">
-                      <!-- Injected via JS -->
-                    </div>
+                    <div id="carousel-banner-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                   </div>
                 </div>
               </div>
-
-              <div class="form-group">
-                <label><input type="checkbox" id="toggle-clearance"> Show Clearance in Navigation</label>
-              </div>
-
+              <div class="form-group"><label><input type="checkbox" id="toggle-clearance"> Show Clearance in Navigation</label></div>
               <button type="submit" class="btn btn-solid btn-full" id="settings-btn">Save Settings</button>
             </form>
           </div>
@@ -179,6 +175,6 @@
       </div>
     </main>
   </div>
-  <script type="module" src="app.js?v=30"></script>
+  <script type="module" src="app.js?v=31"></script>
 </body>
 </html>
