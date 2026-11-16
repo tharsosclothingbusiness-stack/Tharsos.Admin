@@ -10,7 +10,7 @@ const firebaseConfig = {
   messagingSenderId: "229266745261",
   appId: "1:229266745261:web:57b90fc331b098f1bda324"
 };
-const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "tharsos_preset" }; 
+const cloudinaryConfig = { cloudName: "fsfaie7d", uploadPreset: "tharsos_preset" }; 
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
