@@ -10,7 +10,7 @@ const firebaseConfig = {
   messagingSenderId: "229266745261",
   appId: "1:229266745261:web:57b90fc331b098f1bda324"
 };
-const cloudinaryConfig = { cloudName: "fsfaie7d", uploadPreset: "tharsos_preset" }; // ⚠️ UPDATE
+const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "tharsos_preset" }; 
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -37,12 +37,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.getElementById(btn.dataset.tab).classList.add('active');
   });
 });
+
 document.getElementById('toggle-hero').addEventListener('change', (e) => {
   document.getElementById('hero-settings-wrapper').style.display = e.target.checked ? 'block' : 'none';
 });
 document.getElementById('hero-type').addEventListener('change', (e) => {
   document.getElementById('hero-collection-settings').style.display = e.target.value === 'collection' ? 'block' : 'none';
   document.getElementById('hero-carousel-settings').style.display = e.target.value === 'carousel' ? 'block' : 'none';
+});
+document.getElementById('banner-show-btn').addEventListener('change', (e) => {
+  document.getElementById('banner-btn-settings').style.display = e.target.checked ? 'block' : 'none';
 });
 
 async function uploadImage(file) {
@@ -52,11 +56,12 @@ async function uploadImage(file) {
   return (await res.json()).secure_url;
 }
 
-// --- GLOBAL DATA STORE ---
+// --- DATA STORES ---
 let allCollections = [];
-let allBanners = [];
+let allProducts = [];
 
 // --- PRODUCTS ---
+// (Product logic remains exactly the same as previous version)
 const productForm = document.getElementById('product-form');
 const submitBtn = document.getElementById('submit-btn');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
@@ -116,9 +121,20 @@ productForm.addEventListener('submit', async (e) => {
 
 function loadProducts() {
   onSnapshot(collection(db, "products"), (snapshot) => {
+    allProducts = [];
     const list = document.getElementById('admin-product-list'); list.innerHTML = '';
+    const bannerLink = document.getElementById('banner-link'); 
+    
+    // Reset banner links, keep generic options
+    bannerLink.innerHTML = '<option value="index.html">Shop All (Homepage)</option>';
+
     snapshot.forEach(docSnap => {
       const p = docSnap.data();
+      allProducts.push({ id: docSnap.id, ...p });
+      
+      // Add to banner link dropdown
+      bannerLink.innerHTML += `<option value="product.html?id=${docSnap.id}">Product: ${p.name}</option>`;
+
       const div = document.createElement('div'); div.className = 'admin-item';
       div.innerHTML = `
         <div class="admin-item-info">
@@ -183,7 +199,7 @@ function loadCollections() {
     const list = document.getElementById('admin-collection-list'); list.innerHTML = '';
     const select = document.getElementById('prod-collection'); select.innerHTML = '<option value="">None (Standalone)</option>';
     const heroSelect = document.getElementById('hero-collection-select'); heroSelect.innerHTML = '';
-    const bannerLink = document.getElementById('banner-link'); bannerLink.innerHTML = '<option value="index.html">Shop All (Homepage)</option>';
+    const bannerLink = document.getElementById('banner-link'); 
     
     snapshot.forEach(docSnap => {
       const c = docSnap.data();
@@ -211,28 +227,29 @@ document.getElementById('banner-form').addEventListener('submit', async (e) => {
     const deskUrl = await uploadImage(deskFile);
     const mobUrl = mobFile ? await uploadImage(mobFile) : deskUrl;
 
+    const showBtn = document.getElementById('banner-show-btn').checked;
+
     await addDoc(collection(db, "banners"), {
       internalName: document.getElementById('banner-name').value,
-      title: document.getElementById('banner-title').value,
-      btnText: document.getElementById('banner-btn').value,
-      link: document.getElementById('banner-link').value,
+      showBtn: showBtn,
+      btnText: showBtn ? document.getElementById('banner-btn-text').value : '',
+      link: showBtn ? document.getElementById('banner-link').value : '',
       desktopImage: deskUrl,
       mobileImage: mobUrl
     });
     document.getElementById('banner-form').reset();
+    document.getElementById('banner-btn-settings').style.display = 'none';
     alert("Banner created!");
   } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = 'Create Banner'; }
 });
 
 function loadBanners() {
   onSnapshot(collection(db, "banners"), (snapshot) => {
-    allBanners = [];
     const list = document.getElementById('admin-banner-list'); list.innerHTML = '';
     const carouselList = document.getElementById('carousel-banner-list'); carouselList.innerHTML = '';
     
     snapshot.forEach(docSnap => {
       const b = docSnap.data();
-      allBanners.push({ id: docSnap.id, ...b });
 
       // Admin list item
       const div = document.createElement('div'); div.className = 'admin-item';
@@ -261,18 +278,13 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
   e.preventDefault();
   const btn = document.getElementById('settings-btn'); btn.disabled = true; btn.innerText = 'Saving...';
   try {
-    // Gather checked carousel items and order
     const carouselBannerIds = [];
     const checkboxes = document.querySelectorAll('.banner-chk');
     const orders = document.querySelectorAll('.banner-order');
     
     checkboxes.forEach((chk, index) => {
-      if (chk.checked) {
-        carouselBannerIds.push({ id: chk.value, order: Number(orders[index].value) || 99 });
-      }
+      if (chk.checked) carouselBannerIds.push({ id: chk.value, order: Number(orders[index].value) || 99 });
     });
-    
-    // Sort by order number
     carouselBannerIds.sort((a, b) => a.order - b.order);
 
     const configData = {
@@ -280,7 +292,7 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
       showClearance: document.getElementById('toggle-clearance').checked,
       heroType: document.getElementById('hero-type').value,
       heroCollection: document.getElementById('hero-collection-select').value,
-      carouselBanners: carouselBannerIds.map(b => b.id) // Save just the ID array
+      carouselBanners: carouselBannerIds.map(b => b.id)
     };
 
     await setDoc(doc(db, "config", "site"), configData, { merge: true });
@@ -300,7 +312,6 @@ function loadSettings() {
       document.getElementById('hero-collection-settings').style.display = d.heroType === 'collection' ? 'block' : 'none';
       document.getElementById('hero-carousel-settings').style.display = d.heroType === 'carousel' ? 'block' : 'none';
 
-      // Apply checked state to carousel list
       setTimeout(() => {
         const savedIds = d.carouselBanners || [];
         const checkboxes = document.querySelectorAll('.banner-chk');
@@ -313,7 +324,7 @@ function loadSettings() {
             orders[index].value = savedIndex + 1;
           }
         });
-      }, 500); // Slight delay to ensure banners are loaded
+      }, 500); 
     }
   });
 }
